@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Animations;
 
 public class PbdSimulator : ISimulator
 {
@@ -34,20 +35,19 @@ public class PbdSimulator : ISimulator
 		ropeObject.gizmosColor = Color.green;
 
 		_parameter = parameter;
-		_vertexes = ropeObject.particles.Select(p => (p, new Vertex())).ToArray();
+		_vertexes = ropeObject.particles.Select(p => {
 
+			var vertex = new Vertex();
+			vertex.isFixed = p.GetComponent<PositionConstraint>() != null;
+            vertex.initialPosition = p.transform.position;
 
-		// (1) ~ (3)
-		for (var idx = 0; idx < _vertexes.Length; idx++)
-		{
-			var (particle, vertex) = _vertexes[idx];
-			vertex.isFixed = idx == 0;
-			vertex.initialPosition = particle.transform.position;
+            vertex.x = vertex.initialPosition;
+            vertex.v = Vector3.zero;
+            vertex.w = 1f / p.mass;
 
-			vertex.x = vertex.initialPosition;
-			vertex.v = Vector3.zero;
-			vertex.w = 1f / particle.mass;
-		}
+			return (p, vertex);
+			}).ToArray();
+
 	}
 
 	public void Step(float dt)

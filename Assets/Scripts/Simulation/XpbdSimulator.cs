@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Animations;
 
 public class XpbdSimulator : ISimulator
 {
@@ -76,7 +77,7 @@ public class XpbdSimulator : ISimulator
 		for (int i = 0; i < _particles.Length; i++)
 		{
 			var (particleObject, particle) = _particles[i];
-			particle.isFixed = i == 0;
+			particle.isFixed = particleObject.GetComponent<PositionConstraint>() != null;
 			particle.initialPosition = particleObject.GetPosition();
 
 			particle.x = particle.initialPosition;

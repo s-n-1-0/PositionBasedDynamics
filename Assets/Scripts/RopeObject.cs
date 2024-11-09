@@ -7,8 +7,6 @@ public class RopeObject : MonoBehaviour
 {
 	List<ParticleObject> _particles = new();
 
-
-	public Transform startHandle;
     /// <summary>
     /// 指定した場合、ロープの終点が指定したオブジェクトに固定される。
     /// </summary>
@@ -29,7 +27,7 @@ public class RopeObject : MonoBehaviour
             obj.transform.localPosition = new Vector3(0, 0.5f * -i, 0);
             var particle = obj.AddComponent<ParticleObject>();
 
-			if (i == 0) particle.SetPositionConstraint(startHandle);
+			if (i == 0) particle.SetPositionConstraint(transform);
 			if (endHandle && i == initialParticlesCount - 1) particle.SetPositionConstraint(endHandle);
 
             _particles.Add(particle);

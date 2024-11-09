@@ -1,10 +1,9 @@
 using UnityEngine;
+using UnityEngine.Animations;
 
 public class ParticleObject : MonoBehaviour
 {
-	[SerializeField] float _mass = 1f;
-
-	public float mass => _mass;
+	public float mass { get; private set; } = 1;
 	Transform _transform;
 
 
@@ -23,4 +22,15 @@ public class ParticleObject : MonoBehaviour
 	{
 		return GetTransform().position;
 	}
+
+    public void SetPositionConstraint(Transform sourceTransform)
+    {
+        mass = 1e+15f;
+        var positionConstraint = gameObject.AddComponent<PositionConstraint>();
+        positionConstraint.constraintActive = true;
+        var constraintSource = new ConstraintSource();
+        constraintSource.sourceTransform = sourceTransform;
+		constraintSource.weight = 1;
+        positionConstraint.AddSource(constraintSource);
+    }
 }

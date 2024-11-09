@@ -13,39 +13,29 @@ public class RopeSolver : MonoBehaviour
 		XPBD,
 	}
 
-	[SerializeField] bool _playOnAwake = true;
 	[SerializeField, HideInInspector] Algorithm _algorithm = Algorithm.PBD;
 	[SerializeReference] ISimulationParameter _parameter;
 
-	bool _initialized;
 	RopeObject _ropeObject;
 	ISimulator _simulator;
 
 
-	void Awake()
+	public void Generate()
 	{
-		if (_playOnAwake) { Initialize(); }
-	}
+        _ropeObject = GetComponent<RopeObject>();
+        _simulator = GenerateSimulator(_algorithm, _parameter, _ropeObject);
+    }
 
 	void FixedUpdate()
 	{
-		if (_playOnAwake) { UpdateManually(Time.deltaTime); }
-	}
-
-
-	public void Initialize()
-	{
-		if (_initialized) { return; }
-		_initialized = true;
-
-		_ropeObject = GetComponent<RopeObject>();
-		_simulator = GenerateSimulator(_algorithm, _parameter, _ropeObject);
+		if(_ropeObject) UpdateManually(Time.deltaTime); 
 	}
 
 	public void UpdateManually(float dt)
 	{
 		_simulator?.Step(dt);
 	}
+	
 
 	ISimulator GenerateSimulator(Algorithm algorithm, ISimulationParameter parameter, RopeObject ropeObject)
 	{

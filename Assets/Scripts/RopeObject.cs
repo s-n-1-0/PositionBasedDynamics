@@ -1,28 +1,48 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Animations;
+using static UnityEngine.ParticleSystem;
 
-/// <summary>
-/// パーティクル管理と描画を行うだけ
-/// </summary>
 public class RopeObject : MonoBehaviour
 {
-	[SerializeField] List<ParticleObject> _particles = new();
+	List<ParticleObject> _particles = new();
+
+
+	public Transform startHandle;
+    /// <summary>
+    /// 指定した場合、ロープの終点が指定したオブジェクトに固定される。
+    /// </summary>
+    public Transform endHandle = null;
 
 	public IReadOnlyList<ParticleObject> particles => _particles;
 	public Color gizmosColor { get; set; } = Color.green;
 	public string gizmosLabel { get; set; }
 
+	public int initialParticlesCount = 8;
 
+    private void Awake()
+    {
+		for (int i = 0; i < initialParticlesCount; i++)
+		{
+			var obj = new GameObject($"Particle {i + 1}");
+			obj.transform.parent = transform;
+            obj.transform.localPosition = new Vector3(0, 0.5f * -i, 0);
+            var particle = obj.AddComponent<ParticleObject>();
 
-	public void CollectParticles()
-	{
-		_particles.Clear();
-		_particles.AddRange(GetComponentsInChildren<ParticleObject>());
-	}
+			if (i == 0) particle.SetPositionConstraint(startHandle);
+			if (endHandle && i == initialParticlesCount - 1) particle.SetPositionConstraint(endHandle);
+
+            _particles.Add(particle);
+
+        }
+
+		GetComponent<RopeSolver>().Generate();
+    }
+
 
 
 #if UNITY_EDITOR
-	void OnDrawGizmos()
+    void OnDrawGizmos()
 	{
 		if (_particles.Count == 0) { return; }
 
@@ -44,21 +64,3 @@ public class RopeObject : MonoBehaviour
 	}
 #endif
 }
-
-#if UNITY_EDITOR
-[UnityEditor.CustomEditor(typeof(RopeObject))]
-public class RopeEditor : UnityEditor.Editor
-{
-	public override void OnInspectorGUI()
-	{
-		base.OnInspectorGUI();
-
-		var rope = (RopeObject)target;
-		if (GUILayout.Button("Particle収集"))
-		{
-			rope.CollectParticles();
-			UnityEditor.EditorUtility.SetDirty(target);
-		}
-	}
-}
-#endif
